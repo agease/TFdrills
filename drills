@@ -1,0 +1,7 @@
+select mintemperaturef, zip from weather
+where 
+	events = 'Rain' and
+	zip = 94301
+order by mintemperaturef asc
+limit 1; 
+	

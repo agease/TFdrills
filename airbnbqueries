@@ -1,0 +1,168 @@
+/*most time consuming part of the exercise:
+
+CREATE TABLE sfo_listings (
+    id BIGINT,
+	listing_url TEXT,
+	scrape_id TEXT,
+	last_scraped DATE,
+    name TEXT,
+    summary TEXT,
+	space TEXT,
+	description TEXT,
+	experiences_offered TEXT,
+	neighborhood_overview TEXT,
+	notes TEXT,
+	transit TEXT,
+	access TEXT,
+	interaction TEXT,
+	house_rules TEXT,
+	thumbnail_url TEXT,
+	medium_url TEXT,
+	picture_url TEXT,
+	xl_picture_url TEXT,
+	host_id BIGINT,
+	host_url TEXT,
+    host_name TEXT,
+	host_since DATE,
+	host_location TEXT,
+	host_about TEXT,
+	host_response_time TEXT,
+	host_response_rate TEXT,
+	host_acceptance_rate TEXT,
+	host_is_superhost BOOL,
+	host_thumbnail TEXT,
+	host_picture TEXT,
+	host_neighborhood TEXT,
+	host_listings INT,
+	host_total_listings_count INT,
+	host_verifications TEXT,
+	host_has_profile_pic BOOL,
+	host_identity_verified BOOL,
+	street TEXT,
+	neighbourhood TEXT,
+	neighbourhood_cleansed TEXT,
+    neighbourhood_group_cleansed TEXT,
+	city TEXT,
+	state TEXT,
+	zipcode TEXT,
+	market TEXT,
+	smart_location TEXT,
+	country_code TEXT,
+	country TEXT,
+    latitude TEXT,
+    longitude TEXT,
+	is_location_exact BOOL,
+	property_type TEXT,
+	room_type TEXT,
+	accomodates INT,
+	bathrooms REAL,
+	bedrooms INT,
+	beds INT,
+	bed_type TEXT,
+	amenities TEXT,
+	square_feet INT,
+    price TEXT,
+	weekly_price TEXT,
+	monthly_price TEXT,
+	security_deposit TEXT,
+	cleaning_fee TEXT,
+	guests_included INT,
+	extra_people TEXT,
+    minimum_nights INTEGER,
+	maximum_nights INTEGER,
+	calendar_updated TEXT,
+	has_availability BOOL,
+	availability_30 INT,
+	availability_60 INT,
+	availability_90 INT,
+	availability_365 INT,
+	calendar_last_scraped DATE,
+    number_of_reviews INTEGER,
+	first_review DATE,
+    last_review DATE,
+	review_scores_rating INT,
+	review_scores_accuracy INT,
+	review_scores_cleanliness INT,
+	review_scores_checkin INT,
+	review_scores_communication INT,
+	review_scores_location INT,
+	review_scores_value INT,
+	requires_license BOOL,
+	license TEXT,
+	jurisdiction TEXT,
+	instant_book BOOL,
+	is_business_travel_ready BOOL,
+	cancellation_policy TEXT,
+	requires_guest_profile_picture BOOL,
+	requires_guest_phone_verification BOOL,
+	calculated_host_listings_count INT,
+    reviews_per_month REAl)
+;
+
+CREATE TABLE sfo_reviews (
+	listing_id BIGINT,
+	id BIGINT,
+	review_date DATE,
+	reviewer_id BIGINT,
+	reviewer_name TEXT,
+	comments TEXT
+);
+
+CREATE TABLE sfo_calender (
+	listing_id BIGINT,
+	calender_date DATE,
+	available CHAR,
+	price TEXT
+);
+
+*/
+
+--What's the most expensive listing? What else can you tell me about the listing?
+
+--ALTER TABLE sfo_listings
+--ADD price_real REAL;
+
+--UPDATE sfo_listings
+--SET price_real = CAST( regexp_replace( trim(leading '$' from price), ',', '', 'g') as REAL);
+
+SELECT price_real, price, * FROM sfo_listings
+ORDER BY price_real DESC
+LIMIT 100;
+
+--What neighborhoods seem to be the most popular?
+
+SELECT neighbourhood, count(neighbourhood) AS county FROM sfo_listings
+JOIN
+    sfo_reviews
+ON
+    sfo_reviews.listing_id = sfo_listings.id
+GROUP BY neighbourhood
+ORDER BY county DESC
+LIMIT 100;
+
+--What time of year is the cheapest time to go to your city? 
+
+--ALTER TABLE sfo_calender
+--ADD price_real REAL;
+
+--UPDATE sfo_calender
+--SET price_real = CAST( regexp_replace( trim(leading '$' from price), ',', '', 'g') as REAL);
+
+--ALTER TABLE sfo_calender
+--ADD date_month int;
+
+--UPDATE sfo_calender
+--SET date_month = EXTRACT(MONTH FROM calender_date);
+
+-- where price != 'null' doesn't work
+
+SELECT date_month, AVG(price_real) AS pricey FROM sfo_calender
+WHERE price_real > 0
+GROUP BY date_month
+ORDER BY pricey asc;
+
+--What about the busiest?
+
+SELECT EXTRACT(month FROM review_date) as monthy, COUNT(id) as county FROM sfo_reviews
+GROUP BY monthy
+ORDER BY county DESC;
